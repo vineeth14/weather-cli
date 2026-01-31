@@ -1,3 +1,11 @@
-def print_error(e: Exception, prefix: str = "Error") -> None:
+import traceback
+
+
+def print_error(
+    e: Exception, prefix: str = "Error", show_traceback: bool = True
+) -> None:
     """Print any exception in a clean format."""
-    return f"\n {prefix}: {e}"
+    print(f"\n {prefix}: {e}")
+    if show_traceback:
+        traceback.print_exc()
+    return

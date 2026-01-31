@@ -1,6 +1,7 @@
 import argparse
 
 from handlers.temperature import temperature_handler
+from handlers.forecast import forecast_handler
 
 
 def main():
@@ -12,9 +13,17 @@ def main():
     )
     temperature_parser.add_argument("city", help="name of city")
 
+    forecast_parser = subparsers.add_parser(
+        name="forecast", help="Get a 7 day forecast"
+    )
+    forecast_parser.add_argument("city", help="location")
+
     args = parser.parse_args()
 
-    commands = {"temperature": lambda: temperature_handler(args.city)}
+    commands = {
+        "temperature": lambda: temperature_handler(location=args.city),
+        "forecast": lambda: forecast_handler(location=args.city),
+    }
 
     command_func = commands.get(args.command)
 
