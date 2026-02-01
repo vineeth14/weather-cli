@@ -15,34 +15,34 @@ GEOCODING_API_URL = "https://geocoding-api.open-meteo.com/v1/search"
 TEMPERATURE_API_URL = "https://api.open-meteo.com/v1/forecast"
 
 
-def temperature_handler(location: str):
+async def temperature_handler(location: str):
     """Handler for temperature command"""
     request = GetLatitudeLongitudeReq(location=location)
     try:
-        response = get_latitude_longitude(request)
+        response = await get_latitude_longitude(request)
         request = GetTemperatureReq(
             latitude=response.latitude, longitude=response.longitude
         )
-        response: GetTemperatureResp = get_temperature(request)
+        response: GetTemperatureResp = await get_temperature(request)
     except Exception as e:
         print_error(e, "Failed to get latitude and longitude")
 
     print(str(response.temperature) + "F")
 
 
-def get_api_response(request: GetAPIReq) -> requests.Response:
+async def get_api_response(request: GetAPIReq) -> requests.Response:
     response = requests.get(request.api_url, params=request.params)
     return response
 
 
-def get_latitude_longitude(
+async def get_latitude_longitude(
     request: GetLatitudeLongitudeReq,
 ) -> GetLatitudeLongitudeResp:
     """Get latitude and longitude of location"""
     try:
         payload = {"name": request.location}
         api_request = GetAPIReq(api_url=GEOCODING_API_URL, params=payload)
-        response = get_api_response(api_request)
+        response = await get_api_response(api_request)
         json_response = response.json()
         results = json_response["results"][0]
         lat_long_resp = GetLatitudeLongitudeResp(
@@ -53,7 +53,7 @@ def get_latitude_longitude(
         print(e, "GEOCODING Api Request failed")
 
 
-def get_temperature(request: GetTemperatureReq) -> GetTemperatureResp:
+async def get_temperature(request: GetTemperatureReq) -> GetTemperatureResp:
     """Get temperature of lat and longitude"""
     try:
         payload = GetTemperatureModel(
@@ -68,7 +68,7 @@ def get_temperature(request: GetTemperatureReq) -> GetTemperatureResp:
         api_request = GetAPIReq(
             api_url=TEMPERATURE_API_URL, params=payload.model_dump()
         )
-        response = get_api_response(api_request)
+        response = await get_api_response(api_request)
 
         response = response.json()
         temperature = response["current"]["temperature_2m"]

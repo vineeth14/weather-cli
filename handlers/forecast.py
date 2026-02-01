@@ -11,24 +11,24 @@ from typing import List
 FORECAST_API_URL = "https://api.open-meteo.com/v1/forecast"
 
 
-def forecast_handler(location: str):
+async def forecast_handler(location: str):
     """Handler for forecast command"""
     try:
         request = GetLatitudeLongitudeReq(location=location)
-        response = get_latitude_longitude(request)
+        response = await get_latitude_longitude(request)
 
         request = GetForecastReq(
             latitude=response.latitude, longitude=response.longitude
         )
-        response = get_forecast(request)
-        parsed_response = parse_forecast_response(response)
+        response = await get_forecast(request)
+        parsed_response = await parse_forecast_response(response)
         print(parsed_response)
         return parsed_response
     except Exception as e:
         print_error(e, "Failed to get forecast")
 
 
-def get_forecast(request: GetForecastReq) -> GetForecastResp:
+async def get_forecast(request: GetForecastReq) -> GetForecastResp:
     """Get Forecast given lat and long"""
 
     payload = GetForecastModel(
@@ -41,7 +41,7 @@ def get_forecast(request: GetForecastReq) -> GetForecastResp:
 
     api_request = GetAPIReq(api_url=FORECAST_API_URL, params=payload.model_dump())
 
-    response = get_api_response(api_request)
+    response = await get_api_response(api_request)
     response_json = response.json()
 
     response = GetForecastResp(
@@ -53,7 +53,7 @@ def get_forecast(request: GetForecastReq) -> GetForecastResp:
     return response
 
 
-def parse_forecast_response(forecast_response: GetForecastResp) -> List:
+async def parse_forecast_response(forecast_response: GetForecastResp) -> List:
     min_max_temperatures = []
     for min, max in zip(
         forecast_response.temperature_2m_min, forecast_response.temperature_2m_max
